@@ -1,7 +1,6 @@
 {
   "name": "feature-editor-simple",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -15,5 +14,14 @@
   "bugs": {
     "url": "https://github.com/stolbov/esri-leaflet-noreact/issues"
   },
-  "homepage": "https://github.com/stolbov/esri-leaflet-noreact#readme"
+  "homepage": "https://github.com/stolbov/esri-leaflet-noreact#readme",
+  "description": "",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "connect-busboy": "0.0.2",
+    "express": "^4.14.0",
+    "multer": "^1.1.0",
+    "multiparty": "^4.1.2",
+    "nedb": "^1.8.0"
+  }
 }

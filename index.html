@@ -18,6 +18,7 @@
 
     <script src="https://npmcdn.com/leaflet.path.drag/src/Path.Drag.js"></script>
     <script src="http://leaflet.github.io/Leaflet.Editable/src/Leaflet.Editable.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/superagent/2.1.0/superagent.js"></script>
     <style>
       body {margin:0;padding:0;}
       #map {position: absolute;top:0;bottom:0;right:0;left:0;z-index: 50;}
@@ -59,7 +60,9 @@
       .btn:hover {
         border: 1px solid #333;
       }
-
+      #attach img {
+        width: 150px;
+      }
     </style>
   </head>
   <body>
@@ -71,240 +74,8 @@
       <div id="delete" class="panelBtn" style="top: 215px; left: 10px;">Del</div>
     </div>
     <div id="console"></div>
-    <script>
 
-      var editBtn = document.getElementById('editor');
-      var editorPanel = document.getElementById('editorPanel');
-      var createBtn = document.getElementById('create');
-      var deleteBtn = document.getElementById('delete');
-      var consolePanel = document.getElementById('console');
-
-      var _STORE = {};
-
-      var popuper = function () {
-        if (!_STORE.isEditable) {
-          featureLayer.bindPopup(function (evt) {
-            // console.log(evt.feature);
-            // var geometry = evt.feature.geometry.coordinates;
-            // var multi = L.polygon([reverser(geometry)]).addTo(map);
-            // multi.enableEdit();
-            var tpl = L.Util.template(
-              '<p><b>наименование: </b> ' + evt.feature.properties['наименование'] + '</p>' +
-              '<p><b>объем_кв_м: </b> ' + evt.feature.properties['объем_кв_м_'] + '</p>' +
-              '<p><b>протяженность_п_м: </b> ' + evt.feature.properties['протяженность_п_м'] + '</p>' +
-              '<p><b>район: </b> ' + evt.feature.properties['район'] + '</p>' +
-              '<p><b>исполнитель: </b> ' + evt.feature.properties['исполнитель'] + '</p>',
-              evt.feature.properties
-            );
-            consolePanel.innerHTML = tpl;
-            return tpl;
-          });
-        } else {
-          featureLayer.unbindPopup();
-        }
-      };
-      var print = function(o){
-        var output = '';
-        for (var property in o) {
-          output += property + ': ' + o[property]+';<br> ';
-        }
-          return output;
-      }
-
-      _STORE.layers = [];
-      _STORE.isEditable = false;
-      _STORE.isCreatable = false;
-      _STORE.currentPolygon = false;
-      _STORE.editedFeatures = {};
-      _STORE.currentStyles = {};
-
-      var serviseURL = 'https://chebtelekom.ru/arcgis/rest/services/dorogi/kap_rem_dor_2015/FeatureServer/0';
-      var map = L.map('map', {editable: true}).setView([56.140763, 47.237491], 13);
-
-      // L.esri.basemapLayer('Streets').addTo(map);
-      var tilelayer = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-      L.esri.featureLayer({
-        url: 'http://10.2.0.20/arcgis/rest/services/OKS/oks_culture/FeatureServer/0',
-      }).addTo(map);
-
-      var featureLayer = L.esri.featureLayer({
-        url: serviseURL,
-        // simplifyFactor: 1
-      }).addTo(map);
-
-      popuper();
-
-      editBtn.onclick = function () {
-        if (!_STORE.isEditable) {
-          editBtn.className = 'panelBtn active';
-          _STORE.layers.forEach(function (feature) {
-            feature.on('click', L.DomEvent.stop).on('click', feature.toggleEdit);
-          });
-          editorPanel.style.display = "block";
-        } else {
-          editBtn.className = 'panelBtn';
-          _STORE.layers.forEach(function (feature) {
-            feature.off('click', L.DomEvent.stop).off('click', feature.toggleEdit);
-          });
-          if (_STORE.currentPolygon) {
-            _STORE.currentPolygon.disableEdit();
-          }
-          editorPanel.style.display = "none";
-        }
-        _STORE.isEditable = !_STORE.isEditable;
-        popuper();
-      };
-
-      createBtn.onclick = function () {
-        if (!_STORE.isCreatable) {
-          createBtn.className = 'panelBtn active';
-          _STORE.isCreatable = true;
-          map.editTools.startPolygon();
-        } else {
-          createBtn.className = 'panelBtn';
-          _STORE.isCreatable = false;
-          map.editTools.stopDrawing();
-        }
-      };
-
-      deleteBtn.onclick = function () {
-        if (!_STORE.isDeletable) {
-          deleteBtn.className = 'panelBtn active';
-          _STORE.isDeletable = true;
-        } else {
-          deleteBtn.className = 'panelBtn';
-          _STORE.isDeletable = false;
-        }
-      };
-
-      featureLayer.on('click', function (e) {
-        var feature = e.layer.toGeoJSON();
-        console.log(feature);
-        if (_STORE.isDeletable) {
-          featureLayer.deleteFeature(
-            feature.id,
-            function (err, res) {
-              console.log(err);
-              console.log(res);
-            }
-          );
-          return true;
-        }
-
-        if (_STORE.isEditable) {
-          consolePanel.innerHTML = (
-            'наименование:<br /><input type="text" id="newFeatureName" placeholder="наименование" value="' +
-              (feature.properties["наименование"] ? feature.properties["наименование"] : "") +
-            '"/><br />' +
-            'объем_кв_м:<br /><input type="text" id="newFeatureOb" placeholder="объем_кв_м_" value="' +
-              (feature.properties["объем_кв_м_"] ? feature.properties["объем_кв_м_"] : "") +
-            '"/><br />' +
-            'протяженность_п_м:<br /><input type="text" id="newFeatureProt" placeholder="протяженность_п_м" value="' +
-              (feature.properties["протяженность_п_м"] ? feature.properties["протяженность_п_м"] : "") +
-            '"/><br />' +
-            'район:<br /><input type="text" id="newFeatureRay" placeholder="район" value="' +
-              (feature.properties["район"] ? feature.properties["район"] : "") +
-            '"/><br />' +
-            'исполнитель:<br /><input type="text" id="newFeatureIsp" placeholder="исполнитель" value="' +
-              (feature.properties["исполнитель"] ? feature.properties["исполнитель"] : "") +
-            '"/><br />' +
-            '<div class="btn" id="saveFeatureData">Сохранить</div>'
-          );
-          var saveFeatureData = document.getElementById('saveFeatureData');
-          saveFeatureData.onclick = function () {
-            var newFeature = _STORE.currentPolygon.toGeoJSON();
-            newFeature.properties["наименование"] = document.getElementById('newFeatureName').value;
-            newFeature.properties["объем_кв_м_"] = document.getElementById('newFeatureOb').value;
-            newFeature.properties["протяженность_п_м"] = document.getElementById('newFeatureProt').value;
-            newFeature.properties["район"] = document.getElementById('newFeatureRay').value;
-            newFeature.properties["исполнитель"] = document.getElementById('newFeatureIsp').value;
-
-            consolePanel.innerHTML = '<i>Обновление данных...</i>';
-            featureLayer.updateFeature(
-              newFeature,
-              function (err, res) {
-                console.log(err, res);
-                if (err || !res.success) {
-                  consolePanel.innerHTML = '<b>Ошибка сохранения.</b>';
-                } else {
-                  consolePanel.innerHTML = '<b>Успешно!</b>';
-                }
-                e.layer.toggleEdit.on('click', L.DomEvent.stop).on('click', feature.toggleEdit);
-                // e.layer.fire('editable:enabled');
-              }
-            );
-          }
-        }
-        // var styles = featureLayer.options.style(feature);
-        // _STORE.currentStyles = styles;
-        // console.log(e.layer.toGeoJSON());
-        // consolePanel.innerHTML = print(styles);
-      });
-
-      map.on('layeradd', function (e) {
-        if (e.layer instanceof L.Polygon) {
-          _STORE.layers.push(e.layer);
-          // e.layer.on('click', L.DomEvent.stop).on('click', e.layer.toggleEdit);
-        }
-      });
-      map.on('layerremove', function (e) {
-        if (e.layer instanceof L.Polygon) {
-          // e.layer.off('click', L.DomEvent.stop).off('click', e.layer.toggleEdit);
-        }
-      });
-      map.editTools.on('editable:enable', function (e) {
-        // if (this.currentPolygon) this.currentPolygon.disableEdit();
-        // this.currentPolygon = e.layer;
-        // _STORE.currentPolygon = this.currentPolygon;
-        // this.fire('editable:enabled');
-        if (_STORE.currentPolygon) _STORE.currentPolygon.disableEdit();
-        _STORE.currentPolygon = e.layer;
-        this.fire('editable:enabled');
-      });
-      map.editTools.on('editable:disable', function (e) {
-        // delete this.currentPolygon;
-        console.log('editable:disable ');
-        // console.log(_STORE.currentPolygon.toGeoJSON());
-        _STORE.currentPolygon = false;
-        consolePanel.innerHTML = "";
-      });
-      map.editTools.on('editable:drawing:end', function (e) {
-        // consolePanel.innerHTML = print(_STORE.currentPolygon.toGeoJSON());
-        if (_STORE.currentPolygon._parts && _STORE.currentPolygon._parts.length) {
-          // _STORE.currentPolygon.setStyle(_STORE.currentStyles);
-          var newFeature = _STORE.currentPolygon.toGeoJSON();
-          newFeature.properties["исполнитель"] = "АО «Дорэкс» (ООО «СК «Гарант»)";
-          newFeature.properties["наименование"] =  "simple test street";
-          newFeature.properties["объем_кв_м_"] =  "18440";
-          newFeature.properties["район"] =  "Московский";
-
-          featureLayer.addFeature(
-            newFeature,
-            function (err, res) {
-              console.log(err);
-              console.log(res);
-            }
-          );
-
-          _STORE.currentPolygon.disableEdit();
-          _STORE.layers.forEach(function (feature) {
-            if (!feature.feature) {
-              map.removeLayer(feature);
-              console.log(map.hasLayer(feature));
-              console.log(feature.toGeoJSON());
-            }
-          });
-          // map.removeLayer(_STORE.layers[_STORE.layers.length].toGeoJSON());
-          // console.log(_STORE.layers);
-          _STORE.currentPolygon = false;
-          console.log('editable:drawing:end');
-        }
-        if (_STORE.isCreatable) {
-          map.editTools.startPolygon();
-        }
-      });
-    </script>
+    <script src="/js/main.js"></script>
 
   </body>
 </html>
