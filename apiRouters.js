@@ -2,9 +2,6 @@ var fs = require("fs");
 var express = require('express');
 var routers = express.Router();
 var multiparty = require('multiparty');
-// var Busboy = require('connect-busboy');
-
-// var multer  = require('multer');
 
 var Datastore = require('nedb');
 var db = {};

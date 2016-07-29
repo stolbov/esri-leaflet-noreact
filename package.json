@@ -18,9 +18,9 @@
   "description": "",
   "dependencies": {
     "body-parser": "^1.15.2",
-    "connect-busboy": "0.0.2",
     "express": "^4.14.0",
-    "multer": "^1.1.0",
+    "express-http-proxy": "^0.8.0",
+    "http-proxy": "^1.14.0",
     "multiparty": "^4.1.2",
     "nedb": "^1.8.0"
   }
