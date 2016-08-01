@@ -9,54 +9,54 @@ var fullScreenPanel = document.getElementById('fullScreenPanel');
 var fullScreenContent = document.getElementById('fullScreenContent');
 var userPanel = document.getElementById('userPanel');
 
-// var _service = {
-//   url: 'https://chebtelekom.ru/arcgis/rest/services/dorogi/kap_rem_dor_2015/FeatureServer/0',
-//   fields: [
-//     {
-//       name: 'наименование',
-//       title: 'Наименование',
-//       translit: 'featureName'
-//     }, {
-//       name: 'объем_кв_м_',
-//       title: 'Объем (кв.м.)',
-//       translit: 'featureOb'
-//     }, {
-//       name: 'протяженность_п_м',
-//       title: 'Протяженность (п.м.)',
-//       translit: 'featureProt'
-//     }, {
-//       name: 'район',
-//       title: 'Район',
-//       translit: 'featureRay'
-//     }, {
-//       name: 'исполнитель',
-//       title: 'Исполнитель',
-//       translit: 'featureIsp'
-//     }
-//   ]
-// };
 var _service = {
-  url: 'http://gisweb.chebtelekom.ru/arcgis/rest/services/tek/tek_2015_features/FeatureServer/0',
+  url: 'https://chebtelekom.ru/arcgis/rest/services/dorogi/kap_rem_dor_2015/FeatureServer/0',
   fields: [
     {
-      name: 'mkr_name',
+      name: 'наименование',
       title: 'Наименование',
       translit: 'featureName'
     }, {
-      name: 'ploshad_zastroiki',
-      title: 'Площадь застройки (кв.м.)',
+      name: 'объем_кв_м_',
+      title: 'Объем (кв.м.)',
       translit: 'featureOb'
     }, {
-      name: 'fakt_pl',
-      title: 'Фактич. площадь застройки (кв.м.)',
+      name: 'протяженность_п_м',
+      title: 'Протяженность (п.м.)',
+      translit: 'featureProt'
+    }, {
+      name: 'район',
+      title: 'Район',
       translit: 'featureRay'
     }, {
-      name: 'territory',
-      title: 'Площадь территори (га.)',
-      translit: 'featureProt'
+      name: 'исполнитель',
+      title: 'Исполнитель',
+      translit: 'featureIsp'
     }
   ]
 };
+// var _service = {
+//   url: 'http://gisweb.chebtelekom.ru/arcgis/rest/services/tek/tek_2015_features/FeatureServer/0',
+//   fields: [
+//     {
+//       name: 'mkr_name',
+//       title: 'Наименование',
+//       translit: 'featureName'
+//     }, {
+//       name: 'ploshad_zastroiki',
+//       title: 'Площадь застройки (кв.м.)',
+//       translit: 'featureOb'
+//     }, {
+//       name: 'fakt_pl',
+//       title: 'Фактич. площадь застройки (кв.м.)',
+//       translit: 'featureRay'
+//     }, {
+//       name: 'territory',
+//       title: 'Площадь территори (га.)',
+//       translit: 'featureProt'
+//     }
+//   ]
+// };
 var _STORE = {};
 
 var showPanel = function (content) {
@@ -383,9 +383,9 @@ map.editTools.on('editable:drawing:end', function (e) {
   if (_STORE.currentPolygon._parts && _STORE.currentPolygon._parts.length) {
     var newFeature = _STORE.currentPolygon.toGeoJSON();
     newFeature.properties["исполнитель"] = "АО «Дорэкс» (ООО «СК «Гарант»)";
-    newFeature.properties["наименование"] =  "simple test street";
-    newFeature.properties["объем_кв_м_"] =  "18440";
-    newFeature.properties["район"] =  "Московский";
+    newFeature.properties["наименование"] =  "";
+    newFeature.properties["объем_кв_м_"] =  "";
+    newFeature.properties["район"] =  "";
 
     featureLayer.addFeature(
       newFeature,
